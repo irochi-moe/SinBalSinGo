@@ -1,0 +1,38 @@
+name: SinBalSinGo
+version: '${version}'
+author: Irochi
+website: irochi.moe
+main: moe.irochi.plugins.sinbalsingo.SinBalSinGo
+description: '${description}'
+api-version: '1.20'
+folia-supported: true
+softdepend:
+  - GuRoYeokSiBal
+libraries:
+  - net.dv8tion:JDA:${jdaVersion}
+
+commands:
+  report:
+    description: AI가 채팅 기록을 검토하는 신고 명령어입니다.
+    usage: /report <닉네임> [카테고리] [사유]
+    permission: irochi.sinbalsingo.use
+    aliases:
+      - chatreport
+  sinbalsingo:
+    description: SinBalSinGo의 관리 명령어입니다.
+    usage: /sinbalsingo <reload|status|export|retry>
+    permission: irochi.sinbalsingo.admin
+
+permissions:
+  irochi.sinbalsingo.use:
+    description: /report 명령어 사용
+    default: true
+  irochi.sinbalsingo.notify:
+    description: 신고 판정 결과 인게임 알림 수신
+    default: op
+  irochi.sinbalsingo.cooldown.bypass:
+    description: 신고 쿨타임 우회
+    default: false
+  irochi.sinbalsingo.admin:
+    description: 설정 리로드 및 상태 확인
+    default: op

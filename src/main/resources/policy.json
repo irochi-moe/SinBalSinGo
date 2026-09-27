@@ -1,0 +1,115 @@
+{
+  "version": "2026-09-28.1",
+  "rules": [
+    {
+      "id": "R01",
+      "category": "PROFANITY",
+      "autoEligible": true,
+      "prohibited": "Direct explicit profanity, including abbreviations with clear profane meaning, interjections, self-directed swearing and blocked attempts. No exemption for friendship, jokes, frustration, no named victim or gameplay context.",
+      "exceptions": "Genuine moderation report or rule clarification quoting only what is needed; demonstrably accidental substring/typo. Do not invent educational context or an innocent expansion unsupported by the conversation.",
+      "violation": "씨발 너한테 하는 말이다",
+      "allowed": "시발점이라는 단어",
+      "ambiguous": "고립된 약어의 의미가 실제로 불명확한 경우; 욕설 맥락의 ㅅㅂ은 위반",
+      "requiredCheck": "direct-use"
+    },
+    {
+      "id": "R02",
+      "category": "FILTER_EVASION",
+      "autoEligible": true,
+      "prohibited": "Intentional alteration representing language prohibited by any server speech rule: spacing, inserted symbols/digits, transliteration, initials or consecutive message fragments. A successful filter bypass or a previous block is not required.",
+      "exceptions": "Demonstrably ordinary abbreviation/typo/coincidence or rephrasing genuinely allowed text after a false positive. First establish the prohibited expression; do not exempt a recognizable alteration just because a theoretical innocent reading exists.",
+      "violation": "시1발 너 / 응 ㄷㅣㅋㅋ (응디를 분리한 직접 사용)",
+      "allowed": "독 45초로 변경했어요 → 필터 오탐 후 4'5초로 변경 / 님미안해의 단어 경계 오탐 후 사과를 다시 입력",
+      "ambiguous": "시바 (name or profanity?)",
+      "requiredCheck": "prohibited-expansion"
+    },
+    {
+      "id": "R03",
+      "category": "PERSONAL_ATTACK",
+      "autoEligible": false,
+      "prohibited": "Personal degradation, dehumanization, humiliation or exclusion directed at a player, even once and without profanity. Skill criticism becomes a violation when it attacks the person (사람새끼냐, 인간 쓰레기, 접고 꺼져).",
+      "exceptions": "Only isolated mild gameplay/match teasing without personal degradation; sarcasm alone is insufficient. Gameplay context is not a blanket exemption for personal attacks.",
+      "violation": "너는 인간 쓰레기야",
+      "allowed": "ㅋㅋ 그것도 못 맞추냐",
+      "ambiguous": "접어라 (구체적 발언은 있으나 경기 전술 주문인지 사람을 배제하는 말인지 맥락이 끊김)",
+      "requiredCheck": "personal-target"
+    },
+    {
+      "id": "R04",
+      "category": "FAMILY_INSULT",
+      "autoEligible": true,
+      "prohibited": "Direct or clearly elliptical family insults, including 니애미/느금마 used as a taunt, sexual family insults and split-message equivalents. A full sentence, actual family identity or victim complaint is not required.",
+      "exceptions": "Ordinary non-insulting family discussion or genuine moderation reporting/rule clarification. Friendship, retaliation and claiming a joke do not exempt family insults.",
+      "violation": "느금마ㅋㅋ / 니애미 / 너희 부모도 쓰레기다",
+      "allowed": "부모님이 부르셔서 나감",
+      "ambiguous": "니 엄마가 (문장이 끊겨 실제 용법 불명)",
+      "requiredCheck": "family-target"
+    },
+    {
+      "id": "R05",
+      "category": "DISCRIMINATORY_ABUSE",
+      "autoEligible": false,
+      "prohibited": "Discriminatory slurs and identity-based degradation, including disability/racial/sexuality terms used to insult a player. The player need not actually belong to the targeted group; gameplay metaphors and jokes do not exempt abuse.",
+      "exceptions": "Clearly non-degrading identity/accessibility discussion or genuine moderation reporting/rule clarification. A claimed joke or quotation around a slur aimed at a player is not exempt.",
+      "violation": "장애인을 비하하며 상대를 공격",
+      "allowed": "장애인 접근성 이야기",
+      "ambiguous": "인용인지 공격인지 불명확한 비하어",
+      "requiredCheck": "identity-target"
+    },
+    {
+      "id": "R06",
+      "category": "SEXUAL_HARASSMENT",
+      "autoEligible": false,
+      "prohibited": "Sexual degradation, sexual violence/threats, unsolicited sexual comments aimed at a player or their family, including gaming metaphors such as 너 강간당했네. No explicit objection from the recipient is needed for clear sexual degradation.",
+      "exceptions": "Genuine moderation report or rule clarification; clearly non-harassing factual content without prohibited language under other rules. Do not assume friendship, consent or an educational purpose.",
+      "violation": "상대에게 성적 행위를 강요하며 모욕",
+      "allowed": "성희롱 신고 방법 질문",
+      "ambiguous": "성적 농담의 대상과 맥락 불명확",
+      "requiredCheck": "sexual-target"
+    },
+    {
+      "id": "R07",
+      "category": "PERSISTENT_HARASSMENT",
+      "autoEligible": false,
+      "prohibited": "Repeated targeted ridicule, humiliation, pressure to leave or harassment across at least two distinct attributable messages when context establishes a pattern. Repetition can be abusive without profanity; do not assess each mild fragment in isolation. Profanity alone, however often repeated, is not this rule: it needs ridicule, humiliation, threats or pressure beyond the profanity itself.",
+      "exceptions": "One mild taunt or constructive gameplay criticism; necessary repeated tactical/buff calls; the same curse or rude gesture sent again and again with nothing more, which is a single R01/R02 finding. These do not exempt a demonstrated pattern of humiliation. An explicit request to stop is useful evidence, not a prerequisite.",
+      "violation": "여러 메시지에 걸쳐 같은 사람을 집요하게 비하",
+      "allowed": "복수하러 와라 / 음성 대신 strength·speed·팟 요청을 반복하는 팀 콜",
+      "ambiguous": "여러 비하 발언이 있으나 같은 사람을 겨냥한 패턴인지 불명확",
+      "requiredCheck": "targeted-pattern"
+    },
+    {
+      "id": "R08",
+      "category": "ABUSIVE_COMMUNITY_EXPRESSION",
+      "autoEligible": false,
+      "prohibited": "Explicit server ban on player-authored conversational use of: 노무현, 김대중, 노짱, 노쨩, 놈현, 응디, 부엉이바위, 봉하마을, 운지 (including 운지법), 중력절, 슨상님, 우흥, 노알라, 북딱, 흔드르라, 노곰마. Political, historical, geographical, dialect or technical framing does NOT exempt these named expressions. This is a server vocabulary restriction: no malicious intent, insult, deceased mockery or affiliation proof is required. Also covers clearly abusive Ilbe-style usage.",
+      "exceptions": "Only genuine moderation reporting or necessary rule clarification quoting the expression. Not accidental character overlap or a player-controlled name merely appearing as metadata. Quotation marks, a factual topic or calling it educational do not alone exempt direct use. Resolve genuine uncertainty about reporting purpose through review.",
+      "violation": "응디ㅋㅋ / 피아노 운지법 연습 / 노무현·김대중 정책 이야기 / 봉하마을 위치 질문",
+      "allowed": "응디라고 하면 제재인가요? / 저 사람이 우흥이라고 했어요 / 피아노 연습",
+      "ambiguous": "“응디” 이거 신고 (원발언 신고인지 직접 발화 뒤 신고를 빙자하는지 맥락 부족)",
+      "requiredCheck": "prohibited-expression-use"
+    },
+    {
+      "id": "R09",
+      "category": "DECEASED_MOCKERY",
+      "autoEligible": false,
+      "prohibited": "Mocking a deceased person or their death, including memes, celebration and indirect but clearly identified death jokes. No link to a specific community or proof of political intent is needed.",
+      "exceptions": "Genuine moderation report/rule clarification or non-mocking remembrance of a person not independently prohibited by R08. Evaluate R08 separately: absence of death mockery does not exempt banned vocabulary.",
+      "violation": "죽음을 조롱하며 고인을 모욕",
+      "allowed": "돌아가신 할아버지가 보고 싶어요",
+      "ambiguous": "인용 목적 또는 누구의 죽음을 말하는지 실제로 불명확한 경우",
+      "requiredCheck": "death-mockery"
+    },
+    {
+      "id": "R10",
+      "category": "PROHIBITED_SPEECH_STYLE",
+      "autoEligible": true,
+      "prohibited": "Sentence-final ~노 used conversationally, including natural regional dialect; intent/affiliation irrelevant",
+      "exceptions": "Only genuine necessary rule clarification or moderation report quotations; accidental word/name containing 노 without ending function. Quotation marks, dialect, friendship, harmless subject and a post-hoc claim of joking do not exempt direct use.",
+      "violation": "뭐하노ㅋㅋ / directly taunting with “뭐하노”",
+      "allowed": "“뭐하노”라고 하면 제재인가요? / 저 사람이 “뭐하노”라고 했어요 / 피아노",
+      "ambiguous": "뭐하노 (quotation purpose or grammatical function unclear)",
+      "requiredCheck": "grammatical-ending"
+    }
+  ]
+}

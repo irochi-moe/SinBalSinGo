@@ -1,0 +1,141 @@
+{
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "type": "string",
+            "enum": [
+              "R01",
+              "R02",
+              "R03",
+              "R04",
+              "R05",
+              "R06",
+              "R07",
+              "R08",
+              "R09",
+              "R10"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "PROFANITY",
+              "FILTER_EVASION",
+              "PERSONAL_ATTACK",
+              "FAMILY_INSULT",
+              "DISCRIMINATORY_ABUSE",
+              "SEXUAL_HARASSMENT",
+              "PERSISTENT_HARASSMENT",
+              "ABUSIVE_COMMUNITY_EXPRESSION",
+              "DECEASED_MOCKERY",
+              "PROHIBITED_SPEECH_STYLE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ESTABLISHED",
+              "SUSPECTED",
+              "NOT_VIOLATION"
+            ]
+          },
+          "severity": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "confidence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "missingContext": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "checkExplanation": {
+            "type": "string"
+          },
+          "checkSatisfied": {
+            "type": "boolean"
+          },
+          "exceptions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exception": {
+                  "type": "string"
+                },
+                "applies": {
+                  "type": "boolean"
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "exception",
+                "applies",
+                "explanation"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "ruleId",
+          "category",
+          "status",
+          "severity",
+          "confidence",
+          "evidenceIds",
+          "alternatives",
+          "missingContext",
+          "questions",
+          "explanation",
+          "checkExplanation",
+          "checkSatisfied",
+          "exceptions"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "summary",
+    "findings"
+  ],
+  "additionalProperties": false
+}
