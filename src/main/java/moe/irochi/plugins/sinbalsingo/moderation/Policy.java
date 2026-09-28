@@ -34,15 +34,15 @@ public final class Policy {
     public static String name(String id, boolean korean) {
         return switch (id) {
             case "R01" -> korean ? "욕설" : "Profanity";
-            case "R02" -> korean ? "금지 표현 우회" : "Filter evasion";
+            case "R02" -> korean ? "필터 우회" : "Filter evasion";
             case "R03" -> korean ? "인신공격" : "Personal attack";
             case "R04" -> korean ? "가족 모욕" : "Family insult";
-            case "R05" -> korean ? "차별·혐오 표현" : "Discriminatory abuse";
+            case "R05" -> korean ? "혐오 표현" : "Hate speech";
             case "R06" -> korean ? "성희롱" : "Sexual harassment";
-            case "R07" -> korean ? "반복 괴롭힘" : "Persistent harassment";
-            case "R08" -> korean ? "금지된 일베식 표현" : "Banned community expression";
+            case "R07" -> korean ? "반복 괴롭힘" : "Repeated harassment";
+            case "R08" -> korean ? "금지어" : "Banned word";
             case "R09" -> korean ? "고인 조롱" : "Mocking the deceased";
-            case "R10" -> korean ? "종결어미 ~노" : "Banned \"~노\" ending";
+            case "R10" -> korean ? "종결어미 ~노" : "~노 sentence ending";
             default -> id;
         };
     }

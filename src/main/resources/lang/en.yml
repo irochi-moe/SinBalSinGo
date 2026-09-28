@@ -1,46 +1,42 @@
 report:
-  # Usage hint for /report.
   usage: '<yellow>Usage: /report \<player> [category] [reason]'
-  # Categories shown in the report tab completion, matching the client language.
-  # Do not use spaces. Categories from other languages are also recognized.
+  # Categories suggested when players tab-complete /report. Do not use spaces.
   categories:
     - 'profanity'
-    - 'parent-insult'
+    - 'family-insult'
     - 'personal-attack'
     - 'hate-speech'
     - 'sexual-harassment'
     - 'spam'
     - 'other'
   # Message when a player reports themselves.
-  self: '<red>You cannot report yourself.'
-  # Message while report cooldown is active. Placeholders: {seconds}
-  cooldown: '<red>You can submit another report in <yellow>{seconds}<red> seconds.'
-  # Message when the target has no recent chat history. (Does not reveal record availability) Placeholders: {target}
-  no-history: '<red>This player cannot be reported right now.'
+  self: '<red>You can''t report yourself.'
+  cooldown: '<red>You''re on report cooldown. Try again in <yellow>{seconds}<red> seconds.'
+  # Message when the target has no recent chat history. Don't reveal whether any chat was recorded. Placeholders: {target}
+  no-history: '<red>You can''t report this player right now.'
 
 command:
-  reload: '<aqua>[SinBalSinGo] <green>Reloaded AI/language/history settings. Restart for Discord/moderation changes.'
-  # Placeholders: {providers}, {discord}, {history}
+  reload: '<aqua>[SinBalSinGo] <green>Reloaded the config and language files. Discord and punishment changes need a restart.'
   status: '<aqua>[SinBalSinGo] <white>AI <green>{providers}<white> | Discord bot {discord}<white> | Chat history <green>{history}<white> entries'
   status-set: '<green>set'
   status-unset: '<red>not set'
   usage: '<aqua>[SinBalSinGo] <yellow>Usage: /sinbalsingo \<reload|status|export|retry>'
 
 moderation:
-  submitted: '<yellow>Your report was accepted.'
-  action-taken: '<green>Thank you for reporting! Your report was confirmed and action was taken.'
-  submission-failed: '<red>Your report could not be accepted. Please try again later.'
-  admin-queued: '<yellow>Admin operation queued. Check logs/output files for completion.'
+  submitted: '<yellow>Your report has been submitted.'
+  action-taken: '<green>A player you recently reported has been punished. Thanks for reporting!'
+  submission-failed: '<red>Your report couldn''t be submitted. Try again later.'
+  admin-queued: '<yellow>Started the task. Check the console log for the result.'
   # Notifications for staff. Turn each on or off with the notify-* settings in config.yml.
   # Placeholders: {target} (reported player), {action} (punishment name), {case} (case ID)
   notify:
-    review-pending: '<aqua>[SinBalSinGo] <gray>The report on <white>{target}<gray> is <yellow>awaiting moderator review in Discord<gray>.'
-    dismissed: '<aqua>[SinBalSinGo] <gray>The report on <white>{target}<gray> found no violation and was closed without punishment.'
-    rest-dismissed: '<aqua>[SinBalSinGo] <gray>The rest of the report on <white>{target}<gray> found no violation; nothing was added to the automatic action.'
-    action-running: '<aqua>[SinBalSinGo] <gray>The report on <white>{target}<gray> was confirmed; applying <yellow>{action}<gray>.'
+    review-pending: '<aqua>[SinBalSinGo] <gray>The report on <white>{target}<gray> is <yellow>awaiting review in Discord<gray>.'
+    dismissed: '<aqua>[SinBalSinGo] <gray>The report on <white>{target}<gray> found no violation and was closed.'
+    rest-dismissed: '<aqua>[SinBalSinGo] <gray>The rest of the report on <white>{target}<gray> found no violation and was closed with no further punishment.'
+    action-running: '<aqua>[SinBalSinGo] <gray>Applying <yellow>{action}<gray> to <white>{target}<gray>.'
     action-taken: '<aqua>[SinBalSinGo] <gray>Applied <green>{action}<gray> to <white>{target}<gray>.'
-    automatic-part-taken: '<aqua>[SinBalSinGo] <gray>Applied <green>{action}<gray> to <white>{target}<gray> automatically for the clear part of the report; the rest is <yellow>awaiting moderator review in Discord<gray>.'
-    action-failed: '<aqua>[SinBalSinGo] <red>Could not apply {action} to {target}. Please handle it manually.'
-    action-unknown: '<aqua>[SinBalSinGo] <red>Unknown whether {action} was applied to {target}. Check in game and do not run it again, to avoid double punishment.'
-    assessment-failed: '<aqua>[SinBalSinGo] <red>The AI could not assess the report on {target}. If every retry fails, check the AI settings and run /sinbalsingo retry.'
-    delivery-failed: '<aqua>[SinBalSinGo] <red>Could not send the report on {target} to Discord. Check the bot settings and the console log.'
+    automatic-part-taken: '<aqua>[SinBalSinGo] <gray>Automatically applied <green>{action}<gray> to <white>{target}<gray>. The rest is <yellow>awaiting review in Discord<gray>.'
+    action-failed: '<aqua>[SinBalSinGo] <red>Couldn''t apply {action} to {target}. Handle it manually.'
+    action-unknown: '<aqua>[SinBalSinGo] <red>Couldn''t tell if {action} was applied to {target}. Check in game instead of running it again, or they may be punished twice.'
+    assessment-failed: '<aqua>[SinBalSinGo] <red>The AI couldn''t assess the report on {target}. If every retry fails, check the AI settings and run /sinbalsingo retry.'
+    delivery-failed: '<aqua>[SinBalSinGo] <red>Couldn''t send the report on {target} to Discord. Check the bot settings and the console log.'

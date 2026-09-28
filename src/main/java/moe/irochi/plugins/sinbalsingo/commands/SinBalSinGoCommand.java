@@ -2,6 +2,7 @@ package moe.irochi.plugins.sinbalsingo.commands;
 
 import moe.irochi.plugins.sinbalsingo.LanguageManager;
 import moe.irochi.plugins.sinbalsingo.SinBalSinGo;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -37,11 +38,15 @@ public class SinBalSinGoCommand implements CommandExecutor, TabCompleter {
                 plugin.getModeration().retryAll();
                 sender.sendMessage(lang.get(sender, "moderation.admin-queued"));
             }
-            case "status" -> sender.sendMessage(lang.get(sender, "command.status", Map.of(
-                    "providers", plugin.getAiJudge().describeProviders(),
-                    "discord", lang.getRaw(sender, plugin.getModeration().discordConfigured()
-                            ? "command.status-set" : "command.status-unset"),
-                    "history", String.valueOf(plugin.getChatHistory().size()))));
+            case "status" -> {
+                // The providers already sit inside the status line's color.
+                String unset = MiniMessage.miniMessage().stripTags(lang.getRaw(sender, "command.status-unset"));
+                sender.sendMessage(lang.get(sender, "command.status", Map.of(
+                        "providers", plugin.getAiJudge().describeProviders(unset),
+                        "discord", lang.getRaw(sender, plugin.getModeration().discordConfigured()
+                                ? "command.status-set" : "command.status-unset"),
+                        "history", String.valueOf(plugin.getChatHistory().size()))));
+            }
             default -> sender.sendMessage(lang.get(sender, "command.usage"));
         }
         return true;

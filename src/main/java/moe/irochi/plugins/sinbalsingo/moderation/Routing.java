@@ -3,8 +3,11 @@ package moe.irochi.plugins.sinbalsingo.moderation;
 import moe.irochi.plugins.sinbalsingo.ChatHistory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public final class Routing {
@@ -14,9 +17,38 @@ public final class Routing {
     public record RuleConfig(boolean automatic, int confidence) {}
 
     /** A punishment moderators can choose; the AI recommends it from {@code minSeverity} upwards. */
-    public record Action(String label, String command, int minSeverity, boolean automaticSafe) {}
+    public record Action(String label, String command, int minSeverity, boolean automaticSafe, Map<String, String> labels) {
 
-    /** Per-rule automation settings and the punishments, lightest first. */
+        public Action {
+            // Cases saved before punishments were named per language have no labels.
+            labels = labels == null ? Map.of() : Map.copyOf(labels);
+        }
+
+        public Action(String label, String command, int minSeverity, boolean automaticSafe) {
+            this(label, command, minSeverity, automaticSafe, Map.of());
+        }
+
+        /** The name in the first of these languages that has one, else {@code label}. */
+        public String labelIn(String... languages) {
+            for (String language : languages) {
+                String name = labels.get(language);
+                if (name != null) return name;
+            }
+            return label;
+        }
+    }
+
+    /** A label is one name for everyone, or names by language code: {ko: 경고, en: warning}. */
+    static Map<String, String> labels(Object label) {
+        Map<String, String> labels = new LinkedHashMap<>();
+        if (label instanceof Map<?, ?> byLanguage) {
+            byLanguage.forEach((language, name) ->
+                    labels.put(Objects.toString(language).trim().toLowerCase(Locale.ROOT), Objects.toString(name, "").trim()));
+        }
+        return labels;
+    }
+
+    /** The punishments are lightest first. */
     public record Config(Map<String, RuleConfig> rules, List<Action> actions) {}
 
     /** {@code clear} holds the indices of the reviewable findings that need no moderator. */
@@ -60,7 +92,6 @@ public final class Routing {
         return evidence.stream().anyMatch(e -> e.type() == ChatHistory.Type.KILL && f.evidenceIds().contains(e.id()));
     }
 
-    /** The heaviest action whose threshold the given severity reaches. */
     public static int recommend(List<Action> actions, int severity) {
         int pick = 0;
         for (int i = 0; i < actions.size(); i++) {

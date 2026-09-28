@@ -20,13 +20,13 @@ Paper 또는 Folia 1.20.1 이상, Java 17 이상이 필요합니다.
 
 ## 자동 처벌
 
-R01 욕설, R02 금지 표현 우회, R04 가족 모욕, R10 종결어미 ~노만 자동 처벌합니다. AI가 확신도 95 이상의 확실한 위반으로 보고 다른 해석이나 예외가 없어야 하며 추천된 처벌이 `automatic: true`여야 합니다. 한 신고에 애매한 판단이 섞여 있으면 확실한 부분만 먼저 처벌하고 나머지는 운영자가 정합니다.
+R01 욕설, R02 필터 우회, R04 가족 모욕, R10 종결어미 ~노만 자동 처벌합니다. AI가 확신도 95 이상의 확실한 위반으로 보고 다른 해석이나 예외가 없어야 하며 추천된 처벌이 `automatic: true`여야 합니다. 한 신고에 애매한 판단이 섞여 있으면 확실한 부분만 먼저 처벌하고 나머지는 운영자가 정합니다.
 
 끄려면 `moderation.automatic-enforcement: false`로 바꾸세요. 규칙별로는 `moderation.rules`의 `automatic-eligible`과 `confidence`로 조정합니다.
 
 ## 처벌 설정
 
-`moderation.actions`에 가벼운 처벌부터 적습니다. 기본값은 [LiteBans](https://www.spigotmc.org/resources/litebans.3715/)의 경고, 30분 채팅 금지, 1일 채팅 금지입니다. AI가 매긴 심각도가 `min-severity` 이상인 처벌 중 가장 무거운 것을 추천합니다. 명령어에는 `{target}`(닉네임), `{uuid}`, `{reason}`(위반한 규칙)을 쓸 수 있습니다.
+`moderation.actions`에 가벼운 처벌부터 적습니다. 기본값은 [LiteBans](https://www.spigotmc.org/resources/litebans.3715/)의 경고, 30분 채팅 금지, 1일 채팅 금지입니다. 처벌 이름(`label`)을 `{ ko: '경고', en: 'warning', ja: '警告' }`처럼 언어별로 적으면 관리자 게임 알림이 각자의 게임 언어로 나갑니다. Discord 카드에는 한국어 이름이 나갑니다. AI가 매긴 심각도가 `min-severity` 이상인 처벌 중 가장 무거운 것을 추천합니다. 명령어에는 `{target}`(닉네임), `{uuid}`, `{reason}`(위반한 규칙)을 쓸 수 있습니다. `{reason}`에는 `Profanity`처럼 영어 규칙 이름이 들어가고 `moderation.reason-language: ko`로 바꾸면 한국어가 들어갑니다.
 
 이전 위반 횟수는 반영하지 않으니 누적 처벌은 LiteBans 경고 누적을 쓰세요. 처벌받은 플레이어에게는 이 플러그인이 메시지를 보내지 않습니다.
 
@@ -60,9 +60,9 @@ R01 욕설, R02 금지 표현 우회, R04 가족 모욕, R10 종결어미 ~노�
 ## 그 밖에
 
 - 신고는 `plugins/SinBalSinGo/cases`에 저장되어 재시작이나 장애 뒤에도 이어서 처리되고 14일이 지나면 지워집니다. 대화 내용이 들어 있으니 운영자만 볼 수 있게 하세요.
-- 처벌 도중 서버가 꺼지면 중복 처벌을 막으려고 다시 실행하지 않습니다. 제재 플러그인 기록을 확인하세요.
+- 처벌 도중 서버가 꺼지면 중복 처벌을 막으려고 다시 실행하지 않습니다. 처벌 플러그인 기록을 확인하세요.
 - 처음 몇 주는 자동 처벌이 맞았는지 카드로 확인하세요. 실제 AI·Discord 연결은 아직 검증하지 않았습니다.
-- 메시지는 플레이어의 게임 언어에 맞춰 한국어나 영어로 나갑니다. 문구는 `lang/<언어코드>.yml`에서 고치고 파일을 추가하면 다른 언어도 쓸 수 있습니다. Discord 카드 언어는 `discord.language`로 정합니다. AI 판단 내용은 항상 한국어입니다.
+- 메시지는 플레이어의 게임 언어에 맞춰 한국어, 영어, 일본어 중 하나로 나갑니다. 그 밖의 언어는 `fallback-language`(기본 영어)로 나가고 콘솔에는 항상 한국어로 답합니다. 문구는 `lang/<언어코드>.yml`에서 고치고 파일을 추가하면 다른 언어도 쓸 수 있습니다. Discord 카드 언어는 `discord.language`로 정합니다. AI 판단 내용은 항상 한국어입니다.
 - [bStats](https://bstats.org/plugin/bukkit/SinBalSinGo/34367)로 서버 버전, 플레이어 수, Java 버전 같은 익명 통계를 보냅니다. 채팅과 신고 내용, API 키, Discord 토큰은 보내지 않습니다. 그대로 두면 개발에 도움이 됩니다. 끄려면 `bstats: false`로 바꾼 뒤 재시작하세요.
 - [GuRoYeokSiBal](https://github.com/irochi-moe/GuRoYeokSiBal)을 함께 쓰면 욕설 필터가 적용되는 채널의 채팅만 기록합니다. 필터에 막힌 채팅은 막혔다는 표시와 함께 AI에게 넘기고 쿨타임에 막힌 채팅은 기록하지 않습니다.
 - 직접 빌드하려면 `./gradlew build`를 실행하세요. 결과물은 `build/libs`에 생깁니다.

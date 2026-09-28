@@ -28,7 +28,7 @@ public class ModerationCase {
     public long created = System.currentTimeMillis();
     public UUID target;
     public String name;
-    // The policy the assessment was made under; empty until the AI has assessed the case.
+    // Empty until the AI has assessed the case.
     public String policyVersion = "";
     public List<ChatHistory.Entry> evidence = List.of();
     public Set<String> fresh = new HashSet<>();
@@ -73,7 +73,6 @@ public class ModerationCase {
                 .filter(i -> Routing.reviewable(assessment.findings().get(i), fresh)).boxed().toList();
     }
 
-    /** The findings moderators decide on: the reviewable ones, less any punished automatically. */
     public List<Integer> remainingFindings() {
         return reviewableFindings().stream().filter(i -> !automaticFindings.contains(i)).toList();
     }
@@ -82,7 +81,7 @@ public class ModerationCase {
         return findings.stream().mapToInt(i -> assessment.findings().get(i).severity()).max().orElse(0);
     }
 
-    /** Names of the rules the given findings broke; only our own text, never player input, reaches a command. */
+    /** Only our own rule names, never player input, reach a command. */
     public String reason(List<Integer> findings, boolean korean) {
         return findings.stream().map(i -> Policy.name(assessment.findings().get(i).ruleId(), korean)).distinct()
                 .collect(Collectors.joining(", "));

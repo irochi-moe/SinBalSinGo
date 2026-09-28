@@ -83,7 +83,6 @@ public final class CaseEngine {
         });
     }
 
-    /** A moderator's button press on the card at {@code guild}/{@code channel}/{@code message}. */
     public synchronized boolean decide(String id, String guild, String channel, String message, String actor,
                                        String action) {
         ModerationCase c = store.get(id);

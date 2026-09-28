@@ -51,7 +51,8 @@ public final class SinBalSinGo extends JavaPlugin {
         try {
             moderation = new ModerationService(this);
         } catch (Exception e) {
-            getLogger().severe("신고 처리를 시작하지 못해 플러그인을 비활성화합니다: " + e.getClass().getSimpleName());
+            String reason = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+            getLogger().severe("신고 처리를 시작하지 못해 플러그인을 비활성화합니다: " + reason);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -89,7 +90,7 @@ public final class SinBalSinGo extends JavaPlugin {
         if (!aiJudge.isConfigured()) {
             getLogger().warning("AI API 키가 없습니다 — 신고는 저장되지만 판정은 대기/실패 상태로 남습니다.");
         }
-        getLogger().info("준비 완료 — 제공자: " + aiJudge.describeProviders());
+        getLogger().info("준비 완료 — 제공자: " + aiJudge.describeProviders("미설정"));
     }
 
     private List<String> commandPrefixes(String key) {

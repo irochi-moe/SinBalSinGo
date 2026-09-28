@@ -1,26 +1,22 @@
 report:
-  # /report 사용법 안내입니다.
   usage: '<yellow>사용법: /report \<닉네임> [카테고리] [사유]'
-  # 신고 사유 자동완성에 표시할 카테고리입니다. 클라이언트 언어에 맞는 목록이 표시됩니다.
-  # 공백 없이 작성하세요. 다른 언어의 카테고리를 입력해도 인식됩니다.
+  # /report 자동완성에 나오는 카테고리입니다. 공백 없이 적으세요.
   categories:
     - '욕설'
-    - '패드립'
+    - '가족모욕'
     - '인신공격'
-    - '혐오발언'
+    - '혐오표현'
     - '성희롱'
     - '도배'
     - '기타'
   # 자기 자신을 신고했을 때의 메시지입니다.
   self: '<red>자기 자신은 신고할 수 없습니다.'
-  # 신고 쿨타임 중일 때의 메시지입니다. 사용 가능한 변수: {seconds}
-  cooldown: '<red><yellow>{seconds}초<red> 후에 다시 신고할 수 있습니다.'
-  # 신고 대상의 최근 채팅 기록이 없을 때의 메시지입니다. (기록 유무는 노출하지 않음) 사용 가능한 변수: {target}
-  no-history: '<red>지금은 해당 플레이어를 신고할 수 없습니다.'
+  cooldown: '<red>신고 쿨타임입니다. <yellow>{seconds}<red>초 후에 다시 시도하세요.'
+  # 신고 대상의 최근 채팅 기록이 없을 때의 메시지입니다. 기록이 있는지는 드러내지 마세요. 사용 가능한 변수: {target}
+  no-history: '<red>지금은 이 플레이어를 신고할 수 없습니다.'
 
 command:
-  reload: '<aqua>[SinBalSinGo] <green>AI·언어·기록 설정을 다시 불러왔습니다. Discord·제재 설정 변경은 재시작이 필요합니다.'
-  # 사용 가능한 변수: {providers}, {discord}, {history}
+  reload: '<aqua>[SinBalSinGo] <green>설정과 언어 파일을 다시 불러왔습니다. Discord·처벌 설정은 재시작해야 적용됩니다.'
   status: '<aqua>[SinBalSinGo] <white>AI <green>{providers}<white> | Discord 봇 {discord}<white> | 채팅 기록 <green>{history}<white>개'
   status-set: '<green>설정됨'
   status-unset: '<red>미설정'
@@ -28,19 +24,19 @@ command:
 
 moderation:
   submitted: '<yellow>신고가 접수되었습니다.'
-  action-taken: '<green>신고해 주셔서 감사합니다! 신고하신 내용이 확인되어 조치되었습니다.'
-  submission-failed: '<red>신고를 접수하지 못했습니다. 잠시 후 다시 시도해 주세요.'
-  admin-queued: '<yellow>관리 작업을 요청했습니다. 완료 여부는 로그/출력 파일을 확인하세요.'
+  action-taken: '<green>최근 신고한 플레이어가 처벌을 받았습니다. 신고해 주셔서 감사합니다!'
+  submission-failed: '<red>신고를 접수하지 못했습니다. 잠시 후 다시 시도하세요.'
+  admin-queued: '<yellow>작업을 시작했습니다. 결과는 콘솔 로그에서 확인하세요.'
   # 관리자에게 보내는 알림입니다. config.yml의 notify-* 설정으로 켜고 끕니다.
   # 사용 가능한 변수: {target}(신고 대상), {action}(처벌 이름), {case}(사건 ID)
   notify:
-    review-pending: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고가 <yellow>Discord에서 관리자 검토<gray>를 기다립니다.'
-    dismissed: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고는 위반이 아니어서 제재 없이 종료되었습니다.'
-    rest-dismissed: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고의 나머지는 위반이 아니어서, 자동 조치 외에 추가 제재 없이 종료되었습니다.'
-    action-running: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고가 위반으로 판정되어 <yellow>{action}<gray> 조치를 실행합니다.'
-    action-taken: '<aqua>[SinBalSinGo] <white>{target}<gray>에게 <green>{action}<gray> 조치를 적용했습니다.'
-    automatic-part-taken: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고 중 확실한 위반에 <green>{action}<gray> 조치를 자동으로 적용했습니다. 나머지는 <yellow>Discord에서 관리자 검토<gray>를 기다립니다.'
-    action-failed: '<aqua>[SinBalSinGo] <red>{target}에게 {action} 조치를 실행하지 못했습니다. 직접 처리해 주세요.'
-    action-unknown: '<aqua>[SinBalSinGo] <red>{target}에게 {action} 조치가 적용됐는지 알 수 없습니다. 게임에서 확인하고, 중복 처벌되지 않도록 다시 실행하지 마세요.'
+    review-pending: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고가 <yellow>Discord 검토<gray>를 기다립니다.'
+    dismissed: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고는 문제 없음으로 종료되었습니다.'
+    rest-dismissed: '<aqua>[SinBalSinGo] <white>{target}<gray> 신고의 나머지는 문제 없음으로 종료되었습니다. 추가 처벌은 없습니다.'
+    action-running: '<aqua>[SinBalSinGo] <white>{target}<gray>에게 <yellow>{action}<gray> 처벌을 실행합니다.'
+    action-taken: '<aqua>[SinBalSinGo] <white>{target}<gray>에게 <green>{action}<gray> 처벌을 적용했습니다.'
+    automatic-part-taken: '<aqua>[SinBalSinGo] <white>{target}<gray>에게 <green>{action}<gray> 처벌을 자동으로 적용했습니다. 나머지는 <yellow>Discord 검토<gray>를 기다립니다.'
+    action-failed: '<aqua>[SinBalSinGo] <red>{target}에게 {action} 처벌을 실행하지 못했습니다. 직접 처리하세요.'
+    action-unknown: '<aqua>[SinBalSinGo] <red>{target}에게 {action} 처벌이 적용됐는지 알 수 없습니다. 중복 처벌될 수 있으니 다시 실행하지 말고 게임에서 확인하세요.'
     assessment-failed: '<aqua>[SinBalSinGo] <red>AI가 {target} 신고를 심사하지 못했습니다. 재시도가 모두 실패하면 AI 설정을 확인하고 /sinbalsingo retry를 입력하세요.'
     delivery-failed: '<aqua>[SinBalSinGo] <red>{target} 신고를 Discord로 보내지 못했습니다. 봇 설정과 콘솔 로그를 확인하세요.'

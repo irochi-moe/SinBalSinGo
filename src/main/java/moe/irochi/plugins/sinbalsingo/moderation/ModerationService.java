@@ -1,6 +1,7 @@
 package moe.irochi.plugins.sinbalsingo.moderation;
 
 import moe.irochi.plugins.sinbalsingo.ChatHistory;
+import moe.irochi.plugins.sinbalsingo.LanguageManager;
 import moe.irochi.plugins.sinbalsingo.SinBalSinGo;
 import moe.irochi.plugins.sinbalsingo.discord.DiscordReviewBot;
 import moe.irochi.plugins.sinbalsingo.moderation.ModerationCase.AssessmentState;
@@ -48,6 +49,7 @@ public final class ModerationService implements AutoCloseable {
     private final Routing.Config config;
     private final boolean automatic;
     private final boolean korean;
+    private final boolean koreanReason;
     private final int maxAttempts;
     private final int retrySeconds;
     private final int deleteAfterDays;
@@ -58,7 +60,7 @@ public final class ModerationService implements AutoCloseable {
         var cfg = plugin.getConfig();
         Path root = plugin.getDataFolder().toPath().toAbsolutePath().normalize();
         Path storage = root.resolve(cfg.getString("moderation.persistence-directory")).normalize();
-        if (!storage.startsWith(root)) throw new IllegalArgumentException("Persistence must be within plugin data directory");
+        if (!storage.startsWith(root)) throw new IllegalArgumentException("moderation.persistence-directory는 플러그인 폴더 안이어야 합니다.");
         notifySwitches = Stream.of("notify-yes", "notify-no", "notify-consider", "notify-error")
                 .filter(cfg::getBoolean).collect(Collectors.toSet());
         automatic = cfg.getBoolean("moderation.automatic-enforcement");
@@ -67,6 +69,7 @@ public final class ModerationService implements AutoCloseable {
         deleteAfterDays = Math.max(1, cfg.getInt("moderation.delete-after-days"));
         config = new Routing.Config(ruleConfigs(cfg), actions(cfg));
         korean = "ko".equals(cfg.getString("discord.language"));
+        koreanReason = "ko".equals(cfg.getString("moderation.reason-language"));
 
         store = new CaseStore(storage);
         engine = new CaseEngine(store);
@@ -80,32 +83,37 @@ public final class ModerationService implements AutoCloseable {
         for (Policy.Rule rule : Policy.rules()) {
             String base = "moderation.rules." + rule.id();
             int confidence = cfg.getInt(base + ".confidence");
-            if (confidence < 0 || confidence > 100) throw new IllegalArgumentException("confidence must be 0..100");
+            if (confidence < 0 || confidence > 100) throw new IllegalArgumentException(base + ".confidence는 0~100이어야 합니다.");
             rules.put(rule.id(), new Routing.RuleConfig(cfg.getBoolean(base + ".automatic-eligible"), confidence));
         }
         return Map.copyOf(rules);
     }
 
-    /** The punishments in moderation.actions, lightest first. An entry that looks wrong stops the plugin from starting. */
+    /** An entry that looks wrong stops the plugin from starting. */
     private static List<Routing.Action> actions(ConfigurationSection cfg) {
         List<Routing.Action> actions = new ArrayList<>();
         for (Map<?, ?> item : cfg.getMapList("moderation.actions")) {
-            String label = Objects.toString(item.get("label"), "").trim();
+            Map<String, String> labels = Routing.labels(item.get("label"));
+            // Discord shows the Korean name.
+            String label = item.get("label") instanceof Map<?, ?>
+                    ? labels.getOrDefault("ko", labels.values().stream().findFirst().orElse(""))
+                    : Objects.toString(item.get("label"), "").trim();
             String command = Objects.toString(item.get("command"), "").trim();
             int minSeverity = item.get("min-severity") instanceof Number n ? n.intValue() : 0;
             int lighter = actions.isEmpty() ? 0 : actions.get(actions.size() - 1).minSeverity();
-            boolean validLabel = !label.isEmpty() && label.length() <= 80;
+            boolean validLabel = !label.isEmpty() && label.length() <= 80
+                    && labels.values().stream().allMatch(name -> !name.isEmpty() && name.length() <= 80);
             // A console command on one line, with no placeholder other than the documented three.
             boolean validCommand = command.length() <= 1000 && !command.startsWith("/")
                     && command.chars().noneMatch(ch -> ch < 32)
                     && !command.replace("{uuid}", "").replace("{target}", "").replace("{reason}", "").matches(".*[{}].*");
             if (!validLabel || !validCommand || minSeverity < lighter || minSeverity > 100) {
-                throw new IllegalArgumentException("Invalid moderation action: " + label);
+                throw new IllegalArgumentException("moderation.actions의 처벌이 잘못되었습니다: " + label);
             }
-            actions.add(new Routing.Action(label, command, minSeverity, Boolean.TRUE.equals(item.get("automatic"))));
+            actions.add(new Routing.Action(label, command, minSeverity, Boolean.TRUE.equals(item.get("automatic")), labels));
         }
         if (actions.isEmpty() || actions.get(0).minSeverity() != 0) {
-            throw new IllegalArgumentException("moderation.actions needs a first action with min-severity 0");
+            throw new IllegalArgumentException("moderation.actions의 첫 처벌은 min-severity가 0이어야 합니다.");
         }
         return List.copyOf(actions);
     }
@@ -172,7 +180,8 @@ public final class ModerationService implements AutoCloseable {
             delivering.remove(id);
             if (error == null) return;
             Throwable cause = error instanceof CompletionException && error.getCause() != null ? error.getCause() : error;
-            plugin.getLogger().warning("Discord 전송 실패 (사건 " + id + "): " + cause);
+            String reason = cause.getMessage() == null ? cause.getClass().getSimpleName() : cause.getMessage();
+            plugin.getLogger().warning("Discord 전송 실패 (사건 " + id + "): " + reason);
             ModerationCase failed = store.update(id, x -> {
                 x.failure = "DISCORD_DELIVERY";
                 x.retryAfter = retryAt();
@@ -229,7 +238,7 @@ public final class ModerationService implements AutoCloseable {
         ModerationCase c = automaticPart ? engine.claimAutomaticPart(id) : engine.claimEnforcement(id);
         if (c == null) return;
         Routing.Action action = automaticPart ? c.automaticAction : c.chosen;
-        String reason = c.reason(automaticPart ? c.automaticFindings : c.remainingFindings(), korean);
+        String reason = c.reason(automaticPart ? c.automaticFindings : c.remainingFindings(), koreanReason);
         plugin.getServer().getGlobalRegionScheduler().run(plugin, task -> {
             Dispatch outcome = dispatch(c, action, reason);
             execute(() -> {
@@ -248,7 +257,7 @@ public final class ModerationService implements AutoCloseable {
         });
     }
 
-    /** Runs the action's console command. The punished player hears only from the punishment plugin. */
+    /** The punished player hears only from the punishment plugin. */
     private Dispatch dispatch(ModerationCase c, Routing.Action action, String reason) {
         if (action.command().isBlank()) return new Dispatch(Enforcement.CONFIRMED, "No command configured");
         try {
@@ -282,13 +291,14 @@ public final class ModerationService implements AutoCloseable {
 
     private void notifyStaff(ModerationCase c, String notice, Routing.Action action) {
         if (!plugin.isEnabled() || !notifySwitches.contains(StaffNotice.notifySwitch(notice))) return;
-        Map<String, String> placeholders = Map.of("target", c.name, "action", action == null ? "" : action.label(),
-                "case", c.id);
         plugin.getServer().getGlobalRegionScheduler().run(plugin, task -> {
             for (Player staff : plugin.getServer().getOnlinePlayers()) {
                 staff.getScheduler().run(plugin, t -> {
                     if (staff.hasPermission("irochi.sinbalsingo.notify")) {
-                        staff.sendMessage(plugin.getLanguageManager().get(staff, "moderation.notify." + notice, placeholders));
+                        LanguageManager lang = plugin.getLanguageManager();
+                        String name = action == null ? "" : action.labelIn(lang.languageOf(staff), lang.fallbackLanguage());
+                        Map<String, String> placeholders = Map.of("target", c.name, "action", name, "case", c.id);
+                        staff.sendMessage(lang.get(staff, "moderation.notify." + notice, placeholders));
                     }
                 }, null);
             }

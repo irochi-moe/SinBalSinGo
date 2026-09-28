@@ -1,0 +1,42 @@
+report:
+  usage: '<yellow>使い方: /report \<プレイヤー名> [カテゴリ] [理由]'
+  # /report の入力補完に表示するカテゴリです。スペースを入れずに書いてください。
+  categories:
+    - '暴言'
+    - '家族侮辱'
+    - '個人攻撃'
+    - 'ヘイトスピーチ'
+    - 'セクハラ'
+    - 'スパム'
+    - 'その他'
+  # 自分自身を通報したときのメッセージです。
+  self: '<red>自分自身は通報できません。'
+  cooldown: '<red>通報クールタイム中です。<yellow>{seconds}<red>秒後にもう一度お試しください。'
+  # 通報対象の最近のチャット記録がないときのメッセージです。記録の有無は明かさないでください。使用できる変数: {target}
+  no-history: '<red>現在このプレイヤーは通報できません。'
+
+command:
+  reload: '<aqua>[SinBalSinGo] <green>設定と言語ファイルを再読み込みしました。Discord・処分の設定は再起動後に反映されます。'
+  status: '<aqua>[SinBalSinGo] <white>AI <green>{providers}<white> | Discord Bot {discord}<white> | チャット記録 <green>{history}<white>件'
+  status-set: '<green>設定済み'
+  status-unset: '<red>未設定'
+  usage: '<aqua>[SinBalSinGo] <yellow>使い方: /sinbalsingo \<reload|status|export|retry>'
+
+moderation:
+  submitted: '<yellow>通報を受け付けました。'
+  action-taken: '<green>最近通報したプレイヤーが処分を受けました。通報ありがとうございます！'
+  submission-failed: '<red>通報を受け付けられませんでした。しばらくしてからもう一度お試しください。'
+  admin-queued: '<yellow>作業を開始しました。結果はコンソールログで確認してください。'
+  # 管理者に送る通知です。config.yml の notify-* 設定でオン・オフを切り替えます。
+  # 使用できる変数: {target}(通報対象), {action}(処分名), {case}(ケースID)
+  notify:
+    review-pending: '<aqua>[SinBalSinGo] <white>{target}<gray>への通報は<yellow>Discordでの確認<gray>待ちです。'
+    dismissed: '<aqua>[SinBalSinGo] <white>{target}<gray>への通報は問題なしとして終了しました。'
+    rest-dismissed: '<aqua>[SinBalSinGo] <white>{target}<gray>への通報の残りは問題なしとして終了しました。追加の処分はありません。'
+    action-running: '<aqua>[SinBalSinGo] <white>{target}<gray>に<yellow>{action}<gray>の処分を実行します。'
+    action-taken: '<aqua>[SinBalSinGo] <white>{target}<gray>に<green>{action}<gray>の処分を適用しました。'
+    automatic-part-taken: '<aqua>[SinBalSinGo] <white>{target}<gray>に<green>{action}<gray>の処分を自動で適用しました。残りは<yellow>Discordでの確認<gray>待ちです。'
+    action-failed: '<aqua>[SinBalSinGo] <red>{target}に{action}の処分を実行できませんでした。手動で対応してください。'
+    action-unknown: '<aqua>[SinBalSinGo] <red>{target}に{action}の処分が適用されたか分かりません。二重処分になるおそれがあるため、再実行せずにゲーム内で確認してください。'
+    assessment-failed: '<aqua>[SinBalSinGo] <red>AIが{target}への通報を審査できませんでした。再試行がすべて失敗したら、AIの設定を確認して /sinbalsingo retry を入力してください。'
+    delivery-failed: '<aqua>[SinBalSinGo] <red>{target}への通報をDiscordに送信できませんでした。Botの設定とコンソールログを確認してください。'

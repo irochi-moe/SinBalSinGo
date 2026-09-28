@@ -28,8 +28,8 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
- * Presents a case to moderators in plain words. The card holds the AI's reading and the decision; the thread holds the
- * original chat, which never changes. Player and AI text is escaped so it cannot format, link or mention.
+ * The card holds the AI's reading and the decision; the thread holds the original chat, which never changes. Player
+ * and AI text is escaped so it cannot format, link or mention.
  */
 public final class ReviewMessage {
 
@@ -67,8 +67,8 @@ public final class ReviewMessage {
         EmbedBuilder card = new EmbedBuilder().setColor(status.tone().rgb).setTitle(plain(c.name) + " · " + status.title())
                 .setDescription(text(c.assessment.summary(), 600))
                 .addField(tr("문제가 된 발언", "Reported messages"),
-                        fit(quoted, tr("외 {n}개는 스레드에서 볼 수 있어요.", "{n} more in the thread.")), false);
-        var action = new MessageEmbed.Field(tr("조치", "Action"), action(c), false);
+                        fit(quoted, tr("외 {n}개는 스레드에서 볼 수 있습니다.", "{n} more in the thread.")), false);
+        var action = new MessageEmbed.Field(tr("처벌", "Punishment"), action(c), false);
         var progress = new MessageEmbed.Field(tr("진행 상황", "Status"), status.detail(), false);
         String footer = tr("신고: ", "Reported by: ") + reporters(c) + " · #" + c.id.substring(0, 8);
         // Discord caps an embed at 6000 characters and 25 fields; findings that do not fit are counted instead. Besides
@@ -84,30 +84,29 @@ public final class ReviewMessage {
         if (shown < findings.size()) {
             int left = findings.size() - shown;
             card.addField(tr("나머지 AI 판단", "More findings"),
-                    tr("외 " + left + "개는 공간이 부족해 생략했어요.", left + " more left out for space."), false);
+                    tr("외 " + left + "개는 공간이 부족해 생략했습니다.", left + " more left out for space."), false);
         }
         return card.addField(action).addField(progress).setFooter(footer).setTimestamp(Instant.ofEpochMilli(c.created))
                 .build();
     }
 
-    /** The recommended punishment first in red, then the others lightest first, then the button for no punishment. */
     public List<ActionRow> controls(ModerationCase c) {
         if (!c.pending()) return List.of();
         String prefix = c.id + ":";
         List<Button> buttons = new ArrayList<>();
         Routing.Action recommended = c.actions.get(c.recommended);
         String recommendedLabel = c.actions.size() == 1
-                ? tr("위반 맞음 · ", "Violation · ") + recommended.label()
-                : recommended.label() + tr(" (추천)", " (recommended)");
+                ? tr("위반 맞음 · ", "Violation · ") + punishment(recommended)
+                : punishment(recommended) + tr(" (추천)", " (recommended)");
         buttons.add(Button.danger(prefix + "confirm:" + c.recommended, clip(recommendedLabel, Button.LABEL_MAX_LENGTH)));
         for (int i = 0; i < c.actions.size(); i++) {
             if (i != c.recommended) {
-                buttons.add(Button.secondary(prefix + "confirm:" + i, clip(c.actions.get(i).label(), Button.LABEL_MAX_LENGTH)));
+                buttons.add(Button.secondary(prefix + "confirm:" + i, clip(punishment(c.actions.get(i)), Button.LABEL_MAX_LENGTH)));
             }
         }
         // Once part of the case was punished automatically, the buttons only decide what to add.
         buttons.add(Button.success(prefix + "dismiss",
-                c.automaticAction == null ? tr("문제 없음", "No violation") : tr("추가 처벌 없음", "Nothing more")));
+                c.automaticAction == null ? tr("문제 없음", "No violation") : tr("추가 처벌 없음", "No further punishment")));
         return ActionRow.partitionOf(buttons);
     }
 
@@ -123,7 +122,7 @@ public final class ReviewMessage {
     private String chatLog(ModerationCase c) {
         StringBuilder b = new StringBuilder(tr("[채팅 원문] ", "[Original chat] ")).append(c.name).append('\n')
                 .append(tr("▶ = 신고 대상의 발언", "▶ = the reported player")).append('\n')
-                .append(tr("※ 신고 시점 전후 일부만 담겨 있어요. 귓속말은 신고자와 신고 대상이 주고받은 것만 있어요.",
+                .append(tr("※ 신고 시점 전후 일부만 담겨 있습니다. 귓속말은 신고자와 신고 대상이 주고받은 것만 있습니다.",
                         "* Only part of the chat around the report. Whispers only between the reporter and the player."))
                 .append("\n\n");
         for (ChatHistory.Entry e : c.evidence) {
@@ -141,7 +140,7 @@ public final class ReviewMessage {
         return b.toString();
     }
 
-    /** One cited message on the card. Findings only cite the reported player, so the sender is left out. */
+    /** Findings only cite the reported player, so the sender is left out. */
     private String line(ModerationCase c, ChatHistory.Entry e) {
         String message = text(oneLine(e.message()), 300);
         String body = switch (e.type()) {
@@ -153,7 +152,6 @@ public final class ReviewMessage {
         return "<t:" + e.time() / 1000 + ":t>  " + body + (notes.isEmpty() ? "" : "  *(" + String.join(", ", notes) + ")*");
     }
 
-    /** What stopped a message, and whether an earlier case already covered it. */
     private List<String> notes(ModerationCase c, ChatHistory.Entry e) {
         List<String> notes = new ArrayList<>();
         if (e.filtered()) notes.add(tr("필터에 막힘", "blocked by filter"));
@@ -165,15 +163,15 @@ public final class ReviewMessage {
     }
 
     private String action(ModerationCase c) {
-        String automatic = c.automaticAction == null ? "" : plain(c.automaticAction.label()) + tr(" (자동)", " (automatic)");
+        String automatic = c.automaticAction == null ? "" : plain(punishment(c.automaticAction)) + tr(" (자동)", " (automatic)");
         String decided;
         if (c.decision == Decision.DISMISSED) {
             decided = automatic.isEmpty() ? tr("없음", "None") : "";
         } else if (!c.pending()) {
-            decided = plain(c.chosen.label());
+            decided = plain(punishment(c.chosen));
         } else {
-            decided = (automatic.isEmpty() ? tr("AI 추천: ", "AI recommends: ") : tr("AI 추천 추가 조치: ", "AI recommends adding: "))
-                    + plain(c.actions.get(c.recommended).label()) + " (" + tr("심각도 ", "severity ")
+            decided = (automatic.isEmpty() ? tr("AI 추천: ", "AI recommends: ") : tr("AI 추천 추가 처벌: ", "AI recommends adding: "))
+                    + plain(punishment(c.actions.get(c.recommended))) + " (" + tr("심각도 ", "severity ")
                     + severity(c.maxSeverity(c.remainingFindings())) + ")";
         }
         return automatic.isEmpty() || decided.isEmpty() ? automatic + decided : automatic + "\n" + decided;
@@ -184,15 +182,15 @@ public final class ReviewMessage {
         for (int i : c.reviewableFindings()) {
             Assessment.Finding f = c.assessment.findings().get(i);
             String name = tr("AI 판단 ", "AI finding ") + (i + 1) + " · " + Policy.name(f.ruleId(), korean)
-                    + (c.automaticFindings.contains(i) ? tr(" · 자동 처리", " · automatic") : "");
+                    + (c.automaticFindings.contains(i) ? tr(" · 자동 처벌", " · automatic") : "");
             List<String> checks = new ArrayList<>(f.questions());
             checks.addAll(f.missingContext());
             if (Routing.citesWeaponName(f, c.evidence)) {
-                checks.add(tr("무기 이름이 근거예요. 이 플레이어가 직접 지었는지, 다른 사람에게 보였는지 확인해 주세요.",
+                checks.add(tr("무기 이름이 근거입니다. 이 플레이어가 직접 지었는지, 다른 사람에게 보였는지 확인하세요.",
                         "This relies on a weapon name. Check that this player named it and that others saw it."));
             }
             if (Routing.lacksPattern(f)) {
-                checks.add(tr("발언이 하나뿐이에요. 반복된 괴롭힘인지 확인해 주세요.",
+                checks.add(tr("발언이 하나뿐입니다. 반복된 괴롭힘인지 확인하세요.",
                         "Only one message is cited. Check that the harassment was repeated."));
             }
             List<String> readings = new ArrayList<>(f.alternatives());
@@ -204,7 +202,7 @@ public final class ReviewMessage {
             lines.add(text(f.explanation(), 250));
             checks.stream().limit(2).forEach(q -> lines.add(tr("확인할 점: ", "To check: ") + text(q, 150)));
             readings.stream().limit(1).forEach(r -> lines.add(tr("다른 해석: ", "Other reading: ") + text(r, 150)));
-            fields.add(new MessageEmbed.Field(name, fit(lines, tr("외 {n}줄은 생략했어요.", "{n} more lines left out.")), false));
+            fields.add(new MessageEmbed.Field(name, fit(lines, tr("외 {n}줄은 생략했습니다.", "{n} more lines left out.")), false));
         }
         return fields;
     }
@@ -240,14 +238,14 @@ public final class ReviewMessage {
         Status decision = decision(c);
         if (c.automaticAction == null) return decision;
         String rules = c.reason(c.automaticFindings, korean);
-        Status automatic = enforcement(c.automaticEnforcement, tr("확실한 " + rules + " 판단은 자동으로 처리했어요.",
+        Status automatic = enforcement(c.automaticEnforcement, tr("확실한 " + rules + " 판단은 자동으로 처리했습니다.",
                 "The clear " + rules + " finding was handled automatically."), c.automaticAction);
         // The title follows the part that most needs attention: a failure, then the review, then a running action.
         Status shown = automatic.tone().compareTo(decision.tone()) > 0 ? automatic : decision;
         return new Status(shown.tone(), shown.title(), automatic.detail() + "\n" + decision.detail());
     }
 
-    /** Where the moderators' decision stands. With an automatic part, it covers only the rest of the case. */
+    /** With an automatic part, the moderators' decision covers only the rest of the case. */
     private Status decision(ModerationCase c) {
         boolean rest = c.automaticAction != null;
         Optional<Audit> decision = c.audit.stream().filter(a -> Set.of("confirm", "dismiss").contains(a.action()))
@@ -257,40 +255,43 @@ public final class ReviewMessage {
         String when = decision.map(a -> " (<t:" + a.time() / 1000 + ":R>)").orElse("");
         if (c.decision == Decision.DISMISSED) {
             return new Status(Tone.GREY, tr("문제 없음", "No violation"), rest
-                    ? tr(who + " 님이 나머지는 위반이 아니라고 판단했어요" + when + ". 더 처벌하지 않아요.",
-                            who + " found no further violation" + when + ". Nothing more is applied.")
-                    : tr(who + " 님이 위반이 아니라고 판단했어요" + when + ". 처벌하지 않아요.",
+                    ? tr(who + " 님이 나머지는 위반이 아니라고 판단했습니다" + when + ". 추가 처벌은 없습니다.",
+                            who + " found no further violation" + when + ". No further punishment.")
+                    : tr(who + " 님이 위반이 아니라고 판단했습니다" + when + ". 처벌하지 않습니다.",
                             who + " found no violation" + when + ". No punishment."));
         }
         if (c.decision == Decision.NONE) {
             return new Status(Tone.ORANGE, tr("검토 대기", "Awaiting review"), rest
-                    ? tr("나머지는 관리자 판단을 기다리고 있어요.", "The rest is waiting for a moderator.")
-                    : tr("관리자 판단을 기다리고 있어요.", "Waiting for a moderator."));
+                    ? tr("나머지는 관리자 판단을 기다립니다.", "The rest is waiting for a moderator.")
+                    : tr("관리자 판단을 기다립니다.", "Waiting for a moderator."));
         }
-        String decided = c.decision == Decision.AUTOMATIC ? tr("자동 조치 대상이라 바로 처리했어요.", "Handled automatically.")
-                : rest ? tr(who + " 님이 나머지도 위반으로 판정했어요" + when + ".", who + " confirmed the rest" + when + ".")
-                : tr(who + " 님이 위반으로 판정했어요" + when + ".", who + " confirmed the violation" + when + ".");
+        String decided = c.decision == Decision.AUTOMATIC ? tr("자동 처벌 대상이라 바로 처리했습니다.", "Handled automatically.")
+                : rest ? tr(who + " 님이 나머지도 위반으로 판정했습니다" + when + ".", who + " confirmed the rest" + when + ".")
+                : tr(who + " 님이 위반으로 판정했습니다" + when + ".", who + " confirmed the violation" + when + ".");
         return enforcement(c.enforcement, decided, rest ? c.chosen : null);
     }
 
-    /** How an action is going. It is named when the card reports two. */
+    /** The punishment is named only when the card reports two. */
     private Status enforcement(Enforcement state, String decided, Routing.Action named) {
-        String name = named == null ? null : plain(named.label());
-        String ko = name == null ? "조치" : name + " 조치";
-        String en = name == null ? "The action" : name;
+        String name = named == null ? null : plain(punishment(named));
+        String ko = name == null ? "처벌" : name + " 처벌";
+        String en = name == null ? "The punishment" : name;
         return switch (state) {
-            case CONFIRMED -> new Status(Tone.GREEN, tr("조치 완료", "Action taken"),
-                    decided + " " + tr(ko + "를 적용했어요.", en + " was applied."));
-            case FAILED -> new Status(Tone.RED, tr("조치 실패", "Action failed"), decided + " "
-                    + tr(ko + "를 실행하지 못했어요. 직접 처리해 주세요.", en + " could not run. Please handle it manually."));
+            case CONFIRMED -> new Status(Tone.GREEN, tr("처벌 완료", "Punishment applied"),
+                    decided + " " + tr(ko + "을 적용했습니다.", en + " was applied."));
+            case FAILED -> new Status(Tone.RED, tr("처벌 실패", "Punishment failed"), decided + " "
+                    + tr(ko + "을 실행하지 못했습니다. 직접 처리하세요.", en + " couldn't be applied. Handle it manually."));
             case UNKNOWN -> new Status(Tone.RED, tr("결과 불명", "Result unknown"), decided + " " + tr(
-                    (name == null ? "" : name + " 조치 ")
-                            + "실행 중 문제가 생겨 적용 여부를 알 수 없어요. 게임에서 확인하고, 중복 처벌되지 않도록 다시 실행하지 마세요.",
-                    "Something went wrong while running " + (name == null ? "it" : name)
-                            + ". Check in game and do not run it again, to avoid double punishment."));
-            default -> new Status(Tone.BLUE, tr("조치 중", "Taking action"),
-                    decided + " " + tr(ko + "를 실행하고 있어요.", en + " is running."));
+                    ko + "이 적용됐는지 알 수 없습니다. 중복 처벌될 수 있으니 다시 실행하지 말고 게임에서 확인하세요.",
+                    "Couldn't tell if " + (name == null ? "the punishment" : name)
+                            + " was applied. Check in game instead of running it again, or they may be punished twice."));
+            default -> new Status(Tone.BLUE, tr("처벌 중", "Applying punishment"),
+                    decided + " " + tr(ko + "을 실행하고 있습니다.", en + " is being applied."));
         };
+    }
+
+    private String punishment(Routing.Action action) {
+        return action.labelIn(korean ? "ko" : "en");
     }
 
     private String verdict(Assessment.Status status) {

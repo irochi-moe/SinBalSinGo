@@ -43,12 +43,12 @@ public final class CaseStore implements AutoCloseable {
         Files.createDirectories(directory);
         lockChannel = FileChannel.open(directory.resolve("store.lock"), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         lock = lockChannel.tryLock();
-        if (lock == null) throw new IOException("Case store already in use");
+        if (lock == null) throw new IOException("다른 서버가 신고 저장소를 쓰고 있습니다: " + directory);
         try {
             load();
         } catch (Exception e) {
             close();
-            throw new IOException("Cannot load case store", e);
+            throw new IOException("신고 저장소를 불러오지 못했습니다: " + e.getMessage(), e);
         }
     }
 
@@ -57,7 +57,7 @@ public final class CaseStore implements AutoCloseable {
             for (Path p : paths.filter(p -> p.getFileName().toString().endsWith(".json")).toList()) {
                 ModerationCase c = JSON.fromJson(Files.readString(p), ModerationCase.class);
                 if (c == null || c.target == null || !p.getFileName().toString().equals(c.id + ".json")) {
-                    throw new IOException("Invalid case store");
+                    throw new IOException("사건 파일이 잘못되었습니다: " + p.getFileName());
                 }
                 cases.put(c.id, c);
             }

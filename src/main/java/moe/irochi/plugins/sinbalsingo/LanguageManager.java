@@ -23,12 +23,13 @@ import java.util.Set;
 public class LanguageManager {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final String[] BUNDLED = {"en", "ko"};
+    private static final String[] BUNDLED = {"en", "ko", "ja"};
 
     private final JavaPlugin plugin;
 
     private volatile Map<String, YamlConfiguration> languages = new HashMap<>();
     private volatile YamlConfiguration fallback;
+    private volatile String fallbackCode = "en";
 
     public LanguageManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -76,19 +77,23 @@ public class LanguageManager {
 
         this.languages = loaded;
         this.fallback = fb;
+        this.fallbackCode = code;
 
         plugin.getLogger().info("언어 " + loaded.size() + "개 로드 — 기본 언어: " + code);
     }
 
+    public String languageOf(CommandSender sender) {
+        // The console reads Korean, like the plugin's own logs.
+        String code = sender instanceof Player player ? player.locale().getLanguage().toLowerCase(Locale.ROOT) : "ko";
+        return languages.containsKey(code) ? code : fallbackCode;
+    }
+
+    public String fallbackLanguage() {
+        return fallbackCode;
+    }
+
     private YamlConfiguration resolve(CommandSender sender) {
-        if (sender instanceof Player player) {
-            String lang = player.locale().getLanguage().toLowerCase(Locale.ROOT);
-            YamlConfiguration cfg = languages.get(lang);
-            if (cfg != null) {
-                return cfg;
-            }
-        }
-        return fallback;
+        return languages.getOrDefault(languageOf(sender), fallback);
     }
 
     public String getRaw(CommandSender sender, String key) {

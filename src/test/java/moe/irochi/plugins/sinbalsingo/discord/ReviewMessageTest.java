@@ -56,7 +56,6 @@ class ReviewMessageTest {
                 filler, "checked", !suspected, List.of(new Assessment.ExceptionCheck("exception", suspected, filler)));
     }
 
-    /** A clear profanity finding on {@code a} and a possible personal attack on {@code b}. */
     Assessment mixed(ChatHistory.Entry a, ChatHistory.Entry b) {
         return new Assessment("요약", List.of(finding("R01", ESTABLISHED, a, "설명"), finding("R03", SUSPECTED, b, "설명")));
     }
@@ -107,9 +106,9 @@ class ReviewMessageTest {
             sendable(card);
             assertEquals("Bad\\_Guy · 검토 대기", card.getTitle());
             assertTrue(card.getDescription().contains("\\*\\*굵게\\*\\*"));
-            assertTrue(field(card, "문제가 된 발언").contains("개는 스레드에서 볼 수 있어요"));
-            assertTrue(field(card, "나머지 AI 판단").contains("공간이 부족해 생략했어요"));
-            assertEquals("관리자 판단을 기다리고 있어요.", field(card, "진행 상황"), "the status always survives trimming");
+            assertTrue(field(card, "문제가 된 발언").contains("개는 스레드에서 볼 수 있습니다"));
+            assertTrue(field(card, "나머지 AI 판단").contains("공간이 부족해 생략했습니다"));
+            assertEquals("관리자 판단을 기다립니다.", field(card, "진행 상황"), "the status always survives trimming");
             assertDoesNotThrow(() -> new MessageCreateBuilder().setEmbeds(card).setComponents(view.controls(c)).build());
 
             String file = chatFile(c);
@@ -140,14 +139,14 @@ class ReviewMessageTest {
             String file = chatFile(c);
             assertTrue(file.contains("  Bob: 먼저 한 말") && file.contains("▶ ") && file.contains("Player: 둘째 발언  [필터에 막힘]"));
             assertEquals(List.of("30분 채팅 금지 (추천)", "경고", "1일 채팅 금지", "문제 없음"), buttons(c));
-            assertEquals("AI 추천: 30분 채팅 금지 (심각도 보통)", field(view.card(c), "조치"));
+            assertEquals("AI 추천: 30분 채팅 금지 (심각도 보통)", field(view.card(c), "처벌"));
 
             assertTrue(engine.decide(c.id, "g", "c", "m", "123456", "confirm:0"));
             c = store.get(c.id);
             assertTrue(view.controls(c).isEmpty());
-            assertEquals("Player · 조치 중", view.card(c).getTitle());
-            assertEquals("경고", field(view.card(c), "조치"), "the moderator's pick, not the recommendation");
-            assertTrue(field(view.card(c), "진행 상황").startsWith("<@123456> 님이 위반으로 판정했어요"));
+            assertEquals("Player · 처벌 중", view.card(c).getTitle());
+            assertEquals("경고", field(view.card(c), "처벌"), "the moderator's pick, not the recommendation");
+            assertTrue(field(view.card(c), "진행 상황").startsWith("<@123456> 님이 위반으로 판정했습니다"));
         }
     }
 
@@ -161,24 +160,24 @@ class ReviewMessageTest {
             var c = sent(store, id);
 
             assertEquals("Player · 검토 대기", view.card(c).getTitle());
-            assertEquals("30분 채팅 금지 (자동)\nAI 추천 추가 조치: 30분 채팅 금지 (심각도 보통)", field(view.card(c), "조치"));
-            assertTrue(field(view.card(c), "AI 판단 1 · 욕설 · 자동 처리").startsWith("**위반 확실**"));
-            assertEquals("확실한 욕설 판단은 자동으로 처리했어요. 30분 채팅 금지 조치를 실행하고 있어요.\n"
-                    + "나머지는 관리자 판단을 기다리고 있어요.", field(view.card(c), "진행 상황"));
+            assertEquals("30분 채팅 금지 (자동)\nAI 추천 추가 처벌: 30분 채팅 금지 (심각도 보통)", field(view.card(c), "처벌"));
+            assertTrue(field(view.card(c), "AI 판단 1 · 욕설 · 자동 처벌").startsWith("**위반 확실**"));
+            assertEquals("확실한 욕설 판단은 자동으로 처리했습니다. 30분 채팅 금지 처벌을 실행하고 있습니다.\n"
+                    + "나머지는 관리자 판단을 기다립니다.", field(view.card(c), "진행 상황"));
             assertEquals(List.of("30분 채팅 금지 (추천)", "경고", "1일 채팅 금지", "추가 처벌 없음"), buttons(c));
 
             engine.claimAutomaticPart(id);
             engine.automaticPartResult(id, Enforcement.FAILED, "Command dispatcher returned false");
             c = store.get(id);
-            assertEquals("Player · 조치 실패", view.card(c).getTitle(), "a failure outranks the pending review");
+            assertEquals("Player · 처벌 실패", view.card(c).getTitle(), "a failure outranks the pending review");
 
             store.update(id, x -> x.automaticEnforcement = Enforcement.CONFIRMED);
             assertTrue(engine.decide(id, "g", "c", "m", "123456", "dismiss"));
             c = store.get(id);
-            assertEquals("Player · 조치 완료", view.card(c).getTitle());
-            assertEquals("30분 채팅 금지 (자동)", field(view.card(c), "조치"));
-            assertTrue(field(view.card(c), "진행 상황").startsWith("확실한 욕설 판단은 자동으로 처리했어요. 30분 채팅 금지 조치를 적용했어요.\n"
-                    + "<@123456> 님이 나머지는 위반이 아니라고 판단했어요"));
+            assertEquals("Player · 처벌 완료", view.card(c).getTitle());
+            assertEquals("30분 채팅 금지 (자동)", field(view.card(c), "처벌"));
+            assertTrue(field(view.card(c), "진행 상황").startsWith("확실한 욕설 판단은 자동으로 처리했습니다. 30분 채팅 금지 처벌을 적용했습니다.\n"
+                    + "<@123456> 님이 나머지는 위반이 아니라고 판단했습니다"));
             assertTrue(view.controls(c).isEmpty());
         }
     }
@@ -194,8 +193,8 @@ class ReviewMessageTest {
             assertTrue(engine.decide(id, "g", "c", "m", "123456", "dismiss"));
             c = store.get(id);
             assertEquals("Player · 문제 없음", view.card(c).getTitle());
-            assertEquals("없음", field(view.card(c), "조치"));
-            assertTrue(field(view.card(c), "진행 상황").startsWith("<@123456> 님이 위반이 아니라고 판단했어요"));
+            assertEquals("없음", field(view.card(c), "처벌"));
+            assertTrue(field(view.card(c), "진행 상황").startsWith("<@123456> 님이 위반이 아니라고 판단했습니다"));
         }
     }
 }

@@ -9,7 +9,6 @@ final class StaffNotice {
 
     private StaffNotice() {}
 
-    /** Where the case stands. */
     static String of(ModerationCase c) {
         if (c.assessmentState == AssessmentState.FAILED) return "assessment-failed";
         if (c.enforcement == Enforcement.FAILED) return "action-failed";
@@ -20,7 +19,6 @@ final class StaffNotice {
         return c.enforcement == Enforcement.CONFIRMED ? "action-taken" : "action-running";
     }
 
-    /** How the automatic part of the case went once it has run. */
     static String ofAutomaticPart(ModerationCase c) {
         return switch (c.automaticEnforcement) {
             case CONFIRMED -> "automatic-part-taken";

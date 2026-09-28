@@ -67,11 +67,11 @@ public final class DiscordReviewBot extends ListenerAdapter implements AutoClose
 
     public CompletableFuture<Void> deliver(ModerationCase c) {
         if (jda == null || jda.getStatus() != JDA.Status.CONNECTED) {
-            return CompletableFuture.failedFuture(new IllegalStateException("Discord unavailable"));
+            return CompletableFuture.failedFuture(new IllegalStateException("Discord에 연결되어 있지 않습니다."));
         }
         TextChannel destination = jda.getTextChannelById(channel);
         if (destination == null || !destination.getGuild().getId().equals(guild)) {
-            return CompletableFuture.failedFuture(new IllegalStateException("Discord destination"));
+            return CompletableFuture.failedFuture(new IllegalStateException("신고 채널을 찾을 수 없습니다. discord.guild-id와 discord.channel-id를 확인하세요."));
         }
         MessageCreateData card = new MessageCreateBuilder().setEmbeds(view.card(c)).setComponents(view.controls(c))
                 .setAllowedMentions(List.of()).build();
@@ -81,7 +81,7 @@ public final class DiscordReviewBot extends ListenerAdapter implements AutoClose
         } else {
             if (!c.discordGuild.equals(guild) || !c.discordChannel.equals(channel)) {
                 return CompletableFuture.failedFuture(
-                        new IllegalStateException("Review channel changed; restore the original destination"));
+                        new IllegalStateException("신고 채널이 바뀌었습니다. 원래 채널로 되돌리세요."));
             }
             // Replace also drops attachments and buttons the new card no longer has.
             send = destination.editMessageById(c.discordMessage,
@@ -104,7 +104,7 @@ public final class DiscordReviewBot extends ListenerAdapter implements AutoClose
         }));
     }
 
-    /** Opens a thread on the card and posts the original chat once. Evidence never changes, so the thread is never edited. */
+    /** Evidence never changes, so the chat is posted once and the thread is never edited. */
     private CompletableFuture<Void> postChat(ModerationCase c, Message card) {
         CompletableFuture<ThreadChannel> thread;
         if (c.discordThread.isEmpty()) {
@@ -114,7 +114,7 @@ public final class DiscordReviewBot extends ListenerAdapter implements AutoClose
             });
         } else {
             ThreadChannel existing = jda.getThreadChannelById(c.discordThread);
-            if (existing == null) return CompletableFuture.failedFuture(new IllegalStateException("Chat thread unavailable"));
+            if (existing == null) return CompletableFuture.failedFuture(new IllegalStateException("채팅 원문 스레드를 찾을 수 없습니다."));
             thread = CompletableFuture.completedFuture(existing);
         }
         return thread.thenCompose(t -> t.sendMessage(view.chat(c)).submit())
@@ -125,7 +125,7 @@ public final class DiscordReviewBot extends ListenerAdapter implements AutoClose
     public void onButtonInteraction(ButtonInteractionEvent event) {
         // ACK first, then execute disk/decision work on the serialized worker.
         event.deferReply(true).queue(hook -> service.execute(() -> {
-            String result = view.tr("권한이 없거나, 이미 처리됐거나 내용이 바뀐 신고예요.",
+            String result = view.tr("권한이 없거나, 이미 처리됐거나 내용이 바뀐 신고입니다.",
                     "You lack permission, or this report was already handled or has changed.");
             try {
                 Set<String> memberRoles = new HashSet<>();
@@ -133,18 +133,18 @@ public final class DiscordReviewBot extends ListenerAdapter implements AutoClose
                 String actualGuild = event.getGuild() == null ? "" : event.getGuild().getId();
                 String[] parts = event.getComponentId().split(":", 2);
                 if (service.store.get(parts[0]) == null) {
-                    result = view.tr("보관 기간이 지나 기록이 삭제된 신고예요.",
+                    result = view.tr("보관 기간이 지나 기록이 삭제된 신고입니다.",
                             "This report's record was deleted after the retention period.");
                 } else if (CaseEngine.authorizedModerator(actualGuild, event.getChannelId(), memberRoles, guild, channel, roles)
                         && service.engine.decide(parts[0], actualGuild, event.getChannelId(), event.getMessageId(),
                                 event.getUser().getId(), parts[1])) {
                     ModerationCase c = service.store.get(parts[0]);
                     service.notifyStaff(c);
-                    result = view.tr("저장했어요. 처리 결과는 신고 메시지에 표시돼요.", "Saved. The result will show on the report message.");
+                    result = view.tr("저장했습니다. 처리 결과는 신고 메시지에 표시됩니다.", "Saved. The result will show on the report message.");
                 }
             } catch (Exception e) {
-                result = view.tr("저장하지 못했어요. 조치가 적용됐는지 알 수 없으니 신고 메시지를 확인해 주세요.",
-                        "Could not save. Whether the action was applied is unknown; check the report message.");
+                result = view.tr("저장하지 못했습니다. 처벌이 적용됐는지 알 수 없으니 신고 메시지를 확인하세요.",
+                        "Couldn't save. Check the report message to see whether the punishment was applied.");
             }
             hook.editOriginal(result).setAllowedMentions(List.of()).queue();
         }));

@@ -13,8 +13,7 @@ libraries:
 
 commands:
   report:
-    description: AI가 채팅 기록을 검토하는 신고 명령어입니다.
-    usage: /report <닉네임> [카테고리] [사유]
+    description: 플레이어의 채팅을 신고합니다. (Report a player's chat.)
     permission: irochi.sinbalsingo.use
     aliases:
       - chatreport
@@ -28,11 +27,11 @@ permissions:
     description: /report 명령어 사용
     default: true
   irochi.sinbalsingo.notify:
-    description: 신고 판정 결과 인게임 알림 수신
+    description: 신고 진행 알림 받기
     default: op
   irochi.sinbalsingo.cooldown.bypass:
-    description: 신고 쿨타임 우회
+    description: 신고 쿨타임 무시
     default: op
   irochi.sinbalsingo.admin:
-    description: 설정 리로드 및 상태 확인
+    description: /sinbalsingo 명령어 사용
     default: op

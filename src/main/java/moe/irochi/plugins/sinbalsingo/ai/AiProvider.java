@@ -18,7 +18,7 @@ public interface AiProvider {
 
     CompletableFuture<String> requestJudgement(String systemPrompt, String userContent);
 
-    /** Posts a JSON body and returns the response body. Any status but 200 fails without the body, which may hold secrets. */
+    /** Any status but 200 fails without the body, which may hold secrets. */
     static CompletableFuture<String> post(HttpClient http, String url, int timeoutSeconds, String body, String... headers) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))

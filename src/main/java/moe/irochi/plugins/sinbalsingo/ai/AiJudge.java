@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 public class AiJudge {
 
-    /** What the AI is asked to assess, sent as the user message. */
     private record Request(UUID reportedUUID, String reportedName, List<Report> reports, List<ChatHistory.Entry> evidence,
                            Set<String> newEvidenceIds, List<String> contextOnlyIds) {}
 
@@ -34,9 +33,9 @@ public class AiJudge {
         return providers.stream().anyMatch(AiProvider::isConfigured);
     }
 
-    public String describeProviders() {
+    public String describeProviders(String unset) {
         return providers.stream()
-                .map(p -> p.name() + "(" + p.model() + (p.isConfigured() ? ")" : ", unset)"))
+                .map(p -> p.name() + "(" + p.model() + (p.isConfigured() ? ")" : ", " + unset + ")"))
                 .collect(Collectors.joining(" → "));
     }
 

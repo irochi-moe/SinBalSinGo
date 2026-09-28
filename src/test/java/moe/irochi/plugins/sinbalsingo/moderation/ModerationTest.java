@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -95,7 +96,6 @@ class ModerationTest {
         return sent(store, c.id);
     }
 
-    /** A moderator pressing a button on the posted card. */
     static boolean press(CaseEngine engine, ModerationCase c, String action) {
         return engine.decide(c.id, "g", "c", "m", "mod", action);
     }
@@ -527,7 +527,8 @@ class ModerationTest {
                     c.assessmentState = AssessmentState.FAILED;
                 }));
         var langs = List.of(Files.readString(Path.of("src/main/resources/lang/ko.yml")),
-                Files.readString(Path.of("src/main/resources/lang/en.yml")));
+                Files.readString(Path.of("src/main/resources/lang/en.yml")),
+                Files.readString(Path.of("src/main/resources/lang/ja.yml")));
         for (var e : expected) {
             e.state().run();
             assertEquals(e.notice(), StaffNotice.of(c));
@@ -538,6 +539,19 @@ class ModerationTest {
         assertEquals("automatic-part-taken", StaffNotice.ofAutomaticPart(c));
         assertEquals("notify-yes", StaffNotice.notifySwitch("automatic-part-taken"));
         langs.forEach(lang -> assertTrue(lang.contains("\n    automatic-part-taken: '")));
+    }
+
+    @Test void punishmentNamesFollowTheModeratorsLanguage() {
+        var mute = new Routing.Action("30분 채팅 금지", "litebans:tempmute {target} 30m {reason}", 30, false,
+                Routing.labels(Map.of("ko", "30분 채팅 금지", " EN ", " 30-minute mute ")));
+        assertEquals("30-minute mute", mute.labelIn("en", "en"), "codes are lower-cased and names trimmed");
+        assertEquals("30-minute mute", mute.labelIn("ja", "en"), "a language without a name uses the fallback's");
+        assertEquals("30분 채팅 금지", mute.labelIn("ja", "zh"), "then the name Discord shows");
+        assertEquals(Map.of(), Routing.labels("경고"), "a single name is for everyone");
+        assertEquals(mute, CaseStore.JSON.fromJson(CaseStore.JSON.toJson(mute), Routing.Action.class), "names survive a save");
+        String saved = "{\"label\": \"경고\", \"command\": \"\", \"minSeverity\": 0, \"automaticSafe\": true}";
+        assertEquals("경고", CaseStore.JSON.fromJson(saved, Routing.Action.class).labelIn("en", "en"),
+                "cases saved before punishments were named per language still load");
     }
 
     @Test void storageUpdatesAreIsolated() throws Exception {
