@@ -103,8 +103,13 @@ public final class Policy {
             establishing a targeted pattern. Mark concrete unresolved concerns SUSPECTED with specific questions.
             Clearly allowed speech is NOT_VIOLATION (or empty findings), never hypothetical review work.
             ESTABLISHED requires no applicable exception, plausible unresolved alternative, missing material context or questions.
-            Severity measures seriousness, NOT certainty: 0 allowed, 10-20 mild prohibited style/codeword use/profanity, 30-50 personal/family
-            insults, 60-80 persistent/discriminatory/sexual abuse, 90-100 extreme threats/abuse. Style alone is not severe harassment.
+            Severity measures seriousness, NOT certainty. 0 is allowed; a violation scores 10-100 and the bands leave no gaps:
+            10-14 prohibited style/codeword use; 15-29 profanity (15-19 one impulsive use, 20-29 aimed at a player or repeated);
+            30-49 deliberate filter evasion (30-39 one altered message or a single retry, 40-49 repeated retries/variants or
+            aimed at a player); 30-59 personal/family insults; 60-89 persistent/discriminatory/sexual abuse or deceased mockery;
+            90-100 extreme threats/abuse. Within any band score higher for repetition and targeting. Style alone is not severe
+            harassment. Altering prohibited language to get past the filter shows intent, so R02 never scores below the
+            language it disguises. Repetition raises the severity of that ONE finding; it never adds another.
             Confidence measures certainty evidence establishes a violation: 0 none, 50 unresolved, 80 likely but material doubt,
             95 clear direct use with context/exceptions checked, 100 unusually conclusive. It is NOT a calibrated probability.
             Already-owned evidence IDs are context only; never independently punish them again. No commands or durations.

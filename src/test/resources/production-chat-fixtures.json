@@ -122,8 +122,8 @@
     ],
     "rule": "R02",
     "status": "ESTABLISHED",
-    "severity": 20,
-    "rationale": "같은 욕설의 철자를 반복 변형했다. 차단 시도와 마지막 채팅 기록을 구별한다."
+    "severity": 45,
+    "rationale": "상대에게 한 같은 욕설을 막힐 때마다 철자를 바꿔 다시 보냈다. 차단 시도와 마지막 채팅 기록을 구별한다."
   },
   {
     "id": "benign-ending",
@@ -209,7 +209,7 @@
     ],
     "rule": "R01",
     "status": "ESTABLISHED",
-    "severity": 15,
+    "severity": 25,
     "rationale": "같은 상대에게 같은 욕설 표현을 연달아 보낸 욕설 한 건이다. 조롱·비하·퇴장 요구가 더해지지 않아 반복 괴롭힘으로 따로 세지 않는다."
   },
   {
@@ -434,7 +434,7 @@
     ],
     "rule": "R02",
     "status": "ESTABLISHED",
-    "severity": 15,
+    "severity": 30,
     "rationale": "연속된 원형과 변형으로 금지 욕설 의미가 분명하다."
   },
   {
@@ -905,7 +905,7 @@
     ],
     "rule": "R02",
     "status": "ESTABLISHED",
-    "severity": 15,
+    "severity": 30,
     "rationale": "금지된 응디를 알아볼 수 있도록 분리해 직접 사용한 변형이다."
   },
   {
@@ -1007,7 +1007,7 @@
     ],
     "rule": "R08",
     "status": "ESTABLISHED",
-    "severity": 15,
+    "severity": 14,
     "rationale": "직접 사용이 명시되어 있어 신고를 빙자한 후속 말로 면제하지 않는다."
   },
   {

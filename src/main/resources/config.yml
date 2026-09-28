@@ -94,6 +94,8 @@ moderation:
   # 가벼운 처벌부터 적으세요.
   # label: 처벌 이름. 언어별로 적으면 관리자 게임 알림은 각자의 언어로, Discord에는 ko 이름으로 나갑니다.
   # AI가 판단한 심각도(0~100)가 min-severity 이상인 처벌 중 가장 무거운 것을 추천하고, 관리자는 아무 버튼이나 고를 수 있습니다.
+  # AI는 금지 말투·은어 10~14, 욕설 15~29, 필터 우회 30~49, 인신공격·가족 모욕 30~59,
+  # 반복 괴롭힘·혐오 표현·성희롱·고인 조롱 60~89, 극단적인 위협 90~100을 매깁니다. 상대를 겨냥하거나 반복하면 높게 매깁니다.
   # 명령어는 콘솔에서 실행하며 {target}(닉네임), {uuid}, {reason}(위반한 규칙 이름)을 쓸 수 있습니다.
   # 명령어를 비우면 아무것도 실행하지 않고 위반 판정만 남깁니다.
   # automatic: 자동 처벌(automatic-enforcement)이 이 처벌을 실행해도 되는지 여부
@@ -102,13 +104,29 @@ moderation:
       command: 'litebans:warn {target} {reason}'
       min-severity: 0
       automatic: true
+    - label: { ko: '10분 채팅 금지', en: '10-minute mute', ja: '10分チャット禁止' }
+      command: 'litebans:tempmute {target} 10m {reason}'
+      min-severity: 10
+      automatic: true
     - label: { ko: '30분 채팅 금지', en: '30-minute mute', ja: '30分チャット禁止' }
       command: 'litebans:tempmute {target} 30m {reason}'
+      min-severity: 20
+      automatic: true
+    - label: { ko: '1시간 채팅 금지', en: '1-hour mute', ja: '1時間チャット禁止' }
+      command: 'litebans:tempmute {target} 1h {reason}'
       min-severity: 30
       automatic: true
-    - label: { ko: '1일 채팅 금지', en: '1-day mute', ja: '1日チャット禁止' }
-      command: 'litebans:tempmute {target} 1d {reason}'
+    - label: { ko: '3시간 채팅 금지', en: '3-hour mute', ja: '3時間チャット禁止' }
+      command: 'litebans:tempmute {target} 3h {reason}'
+      min-severity: 40
+      automatic: true
+    - label: { ko: '3일 채팅 금지', en: '3-day mute', ja: '3日チャット禁止' }
+      command: 'litebans:tempmute {target} 3d {reason}'
       min-severity: 60
+      automatic: false
+    - label: { ko: '7일 채팅 금지', en: '7-day mute', ja: '7日チャット禁止' }
+      command: 'litebans:tempmute {target} 7d {reason}'
+      min-severity: 90
       automatic: false
   # 규칙별 자동 처벌 설정입니다. automatic-enforcement가 false면 쓰이지 않습니다.
   # automatic-eligible: 자동 처벌 대상으로 검토할지 여부
