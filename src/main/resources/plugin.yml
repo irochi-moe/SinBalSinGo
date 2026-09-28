@@ -32,7 +32,7 @@ permissions:
     default: op
   irochi.sinbalsingo.cooldown.bypass:
     description: 신고 쿨타임 우회
-    default: false
+    default: op
   irochi.sinbalsingo.admin:
     description: 설정 리로드 및 상태 확인
     default: op
