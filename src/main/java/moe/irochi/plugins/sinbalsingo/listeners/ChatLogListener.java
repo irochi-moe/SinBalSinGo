@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
 
 public class ChatLogListener implements Listener {
 
@@ -32,6 +33,7 @@ public class ChatLogListener implements Listener {
     private final ConcurrentHashMap<UUID, BlockReason> blockReasons = new ConcurrentHashMap<>();
 
     private volatile BiPredicate<Player, String> publicChatCheck = (player, message) -> true;
+    private volatile BooleanSupplier resendsCancelledChat = () -> false;
 
     public ChatLogListener(SinBalSinGo plugin) {
         this.plugin = plugin;
@@ -41,23 +43,32 @@ public class ChatLogListener implements Listener {
         this.publicChatCheck = check;
     }
 
+    public void setResendsCancelledChat(BooleanSupplier check) {
+        this.resendsCancelledChat = check;
+    }
+
     public void noteBlock(UUID player, BlockReason reason) {
         blockReasons.put(player, reason);
     }
 
-    /** Null when the message is not logged: a cooldown block, or a cancelled message when those are not logged. */
-    private Delivery delivery(boolean cancelled, UUID player) {
+    /**
+     * Null when the message is not logged: a cooldown block, or a cancelled message when those are not logged.
+     * When {@code resent}, a cancel with no noted reason is the chat plugin sending the message itself.
+     */
+    private Delivery delivery(boolean cancelled, boolean resent, UUID player) {
         BlockReason reason = blockReasons.remove(player);
         if (!cancelled) return Delivery.SENT;
         if (reason == BlockReason.COOLDOWN) return null;
         if (reason == BlockReason.FILTER) return Delivery.FILTERED;
+        if (resent) return Delivery.SENT;
         return plugin.isLogCancelledChat() ? Delivery.BLOCKED : null;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
-        Delivery delivery = delivery(event.isCancelled(), player.getUniqueId());
+        // Azurite and CMI cancel every chat message and send it themselves, so their cancel is not a block.
+        Delivery delivery = delivery(event.isCancelled(), resendsCancelledChat.getAsBoolean(), player.getUniqueId());
         if (delivery == null) return;
 
         String message = PLAIN.serialize(event.originalMessage());
@@ -70,7 +81,7 @@ public class ChatLogListener implements Listener {
     public void onCommand(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
         // MONITOR sees the final state: a command that is not cancelled runs, so its whisper was sent.
-        Delivery delivery = delivery(event.isCancelled(), player.getUniqueId());
+        Delivery delivery = delivery(event.isCancelled(), false, player.getUniqueId());
         if (delivery == null) return;
 
         String raw = stripNamespace(event.getMessage());

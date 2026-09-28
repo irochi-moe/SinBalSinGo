@@ -16,6 +16,7 @@ public class GuRoYeokSiBalHook implements Listener {
         GuRoYeokSiBal guroYeokSiBal =
                 (GuRoYeokSiBal) Bukkit.getPluginManager().getPlugin("GuRoYeokSiBal");
         chatLog.setPublicChatCheck(guroYeokSiBal::shouldFilter);
+        chatLog.setResendsCancelledChat(guroYeokSiBal::resendsCancelledChat);
     }
 
     @EventHandler

@@ -38,6 +38,8 @@ report-cooldown-seconds: 60
 
 # 다른 플러그인(뮤트 등)이 막은 채팅·귓속말도 [다른 플러그인이 막음] 표시와 함께 기록할지 정합니다.
 # GuRoYeokSiBal 필터에 막힌 채팅은 이 설정과 상관없이 기록하고, 쿨타임에 막힌 채팅은 기록하지 않습니다.
+# Azurite·CMI는 채팅을 취소한 뒤 직접 보내므로 GuRoYeokSiBal과 연동돼 있으면 채팅이 취소돼도 보낸 것으로 기록합니다.
+# 이때 다른 플러그인이 막은 채팅은 구분하지 못합니다. 귓속말은 영향이 없습니다.
 log-cancelled-chat: true
 
 history-max-entries: 300 # 메모리에 보관할 최대 채팅 수
