@@ -9,6 +9,7 @@ import moe.irochi.plugins.sinbalsingo.commands.SinBalSinGoCommand;
 import moe.irochi.plugins.sinbalsingo.moderation.ModerationService;
 import moe.irochi.plugins.sinbalsingo.listeners.ChatLogListener;
 import moe.irochi.plugins.sinbalsingo.listeners.GuRoYeokSiBalHook;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
@@ -63,6 +64,10 @@ public final class SinBalSinGo extends JavaPlugin {
         }
         register("report", new ReportCommand(this));
         register("sinbalsingo", new SinBalSinGoCommand(this));
+
+        if (getConfig().getBoolean("bstats")) {
+            new Metrics(this, 34367);
+        }
     }
 
     private <T extends CommandExecutor & TabCompleter> void register(String name, T handler) {

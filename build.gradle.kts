@@ -1,5 +1,6 @@
 plugins {
     java
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 group = providers.gradleProperty("group").get()
@@ -23,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.bstats:bstats-bukkit:3.2.1")
     // The server downloads JDA through plugin.yml's libraries, so it is not bundled; voice and encryption are unused.
     for (configuration in listOf("compileOnly", "testImplementation")) {
         add(configuration, "net.dv8tion:JDA:$jdaVersion") {
@@ -54,6 +56,15 @@ tasks {
         manifest {
             attributes["paperweight-mappings-namespace"] = "mojang"
         }
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
+        relocate("org.bstats", "moe.irochi.plugins.sinbalsingo.bstats")
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 
     withType<JavaCompile>().configureEach {
